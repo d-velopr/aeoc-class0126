@@ -1,24 +1,70 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+const signUpSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters")
+    .regex(/^[a-zA-Z\s'-]+$/, "Name can only contain letters, spaces, hyphens, and apostrophes"),
+  email: z
+    .string()
+    .trim()
+    .email("Please enter a valid email address")
+    .max(255, "Email must be less than 255 characters"),
+  phone: z
+    .string()
+    .trim()
+    .min(7, "Phone number must be at least 7 digits")
+    .max(20, "Phone number must be less than 20 characters")
+    .regex(/^[+\d\s()-]+$/, "Please enter a valid phone number"),
+});
+
+type SignUpFormData = z.infer<typeof signUpSchema>;
 
 const SignUpForm = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SignUpFormData>({
     name: "",
     email: "",
     phone: "",
   });
+  const [errors, setErrors] = useState<Partial<Record<keyof SignUpFormData, string>>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    // Clear error when user starts typing
+    if (errors[name as keyof SignUpFormData]) {
+      setErrors({ ...errors, [name]: undefined });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    // Validate with Zod schema
+    const result = signUpSchema.safeParse(formData);
+    
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof SignUpFormData, string>> = {};
+      result.error.errors.forEach((err) => {
+        const field = err.path[0] as keyof SignUpFormData;
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate form submission
+    // Simulate form submission with validated data
     setTimeout(() => {
       toast({
         title: "Registration Submitted!",
@@ -44,8 +90,12 @@ const SignUpForm = () => {
             onChange={handleChange}
             placeholder="Enter your full name"
             required
-            className="input-styled"
+            maxLength={100}
+            className={`input-styled ${errors.name ? 'border-destructive' : ''}`}
           />
+          {errors.name && (
+            <p className="text-sm text-destructive mt-1">{errors.name}</p>
+          )}
         </div>
 
         <div>
@@ -60,8 +110,12 @@ const SignUpForm = () => {
             onChange={handleChange}
             placeholder="Enter your email address"
             required
-            className="input-styled"
+            maxLength={255}
+            className={`input-styled ${errors.email ? 'border-destructive' : ''}`}
           />
+          {errors.email && (
+            <p className="text-sm text-destructive mt-1">{errors.email}</p>
+          )}
         </div>
 
         <div>
@@ -76,8 +130,12 @@ const SignUpForm = () => {
             onChange={handleChange}
             placeholder="Enter your phone number"
             required
-            className="input-styled"
+            maxLength={20}
+            className={`input-styled ${errors.phone ? 'border-destructive' : ''}`}
           />
+          {errors.phone && (
+            <p className="text-sm text-destructive mt-1">{errors.phone}</p>
+          )}
         </div>
       </div>
 
