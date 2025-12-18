@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
 const signUpSchema = z.object({
@@ -64,15 +65,31 @@ const SignUpForm = () => {
 
     setIsLoading(true);
 
-    // Simulate form submission with validated data
-    setTimeout(() => {
+    try {
+      const { error } = await supabase
+        .from("registrations")
+        .insert({
+          name: result.data.name,
+          email: result.data.email,
+          phone: result.data.phone,
+        });
+
+      if (error) throw error;
+
       toast({
         title: "Registration Submitted!",
         description: "We'll contact you shortly to confirm your spot.",
       });
       setFormData({ name: "", email: "", phone: "" });
+    } catch (error) {
+      toast({
+        title: "Registration Failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
