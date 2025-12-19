@@ -71,6 +71,7 @@ export default {
         },
         gold: "hsl(var(--gold-accent))",
         success: "hsl(var(--success-green))",
+        gallery: "hsl(var(--gallery-bg))",
       },
       borderRadius: {
         lg: "var(--radius)",
