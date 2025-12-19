@@ -3,6 +3,22 @@ import SignUpForm from "@/components/SignUpForm";
 import PricingCard from "@/components/PricingCard";
 import PaymentInfo from "@/components/PaymentInfo";
 import heroImage from "@/assets/hero-workshop.jpg";
+import gallery1 from "@/assets/gallery-1.jpg";
+import gallery2 from "@/assets/gallery-2.jpg";
+import gallery3 from "@/assets/gallery-3.jpg";
+import gallery4 from "@/assets/gallery-4.jpg";
+import gallery5 from "@/assets/gallery-5.jpg";
+import gallery6 from "@/assets/gallery-6.jpg";
+
+const galleryImages = [
+  { src: gallery1, alt: "Students learning 3D printing techniques" },
+  { src: gallery2, alt: "CNC machining workshop demonstration" },
+  { src: gallery3, alt: "Laser cutting class in action" },
+  { src: gallery4, alt: "CAD software training session" },
+  { src: gallery5, alt: "Students showcasing completed projects" },
+  { src: gallery6, alt: "Workshop group photo" },
+];
+
 
 const Index = () => {
   const scrollToForm = () => {
@@ -79,6 +95,33 @@ const Index = () => {
               <PricingCard />
               <PaymentInfo />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Past Events Gallery */}
+      <section className="py-16 md:py-24 bg-gallery">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="section-title">See Our Students in Action</h2>
+            <p className="text-muted-foreground text-lg">
+              Highlights from Previous Workshops
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {galleryImages.map((image, index) => (
+              <div
+                key={index}
+                className="overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl"
+              >
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  className="w-full h-64 object-cover"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </section>
